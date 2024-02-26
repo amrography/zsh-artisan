@@ -18,10 +18,10 @@ function artisan() {
     local docker_compose_config_path=`find $laravel_path -maxdepth 1 \( -name "docker-compose.yml" -o -name "docker-compose.yaml" \) | head -n1`
     local artisan_cmd
 
-    artisan_cmd="php $artisan_path"
-
-    if [ "$docker_compose_config_path" != '' ]; then
-        if [ "`grep -P -i "^(?:(?!.*#.*).)+image:\ssail-.+\/app.*$" $docker_compose_config_path | head -n1`" != '' ]; then
+    if [[ "$docker_compose_config_path" = '' || "$DISABLE_ARTISAN_SAIL" = true ]]; then
+        artisan_cmd="php $artisan_path"
+    else
+        if [ "`grep "laravel/sail" $docker_compose_config_path | head -n1`" != '' ]; then
             artisan_cmd="$laravel_path/vendor/bin/sail artisan"
         else
             local docker_compose_cmd=`_docker_compose_cmd`
